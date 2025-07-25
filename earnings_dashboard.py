@@ -126,7 +126,9 @@ def compute_recommendation(ticker_symbol):
         'ts_slope_0_45': ts_slope_0_45 <= -0.00406,
         'expected_move': expected_move,
         'term_curve': (dtes, ivs),
-        'price_history': price_history
+        'price_history': price_history,
+        'underlying_price': underlying_price,
+        'straddle_cost': straddle
     }
     return result
 
@@ -154,10 +156,14 @@ if st.button("Analyze"):
 
         if result['avg_volume'] and result['iv30_rv30'] and result['ts_slope_0_45']:
             st.markdown("### ✅ Final Recommendation: **RECOMMENDED**")
+            st.markdown("💡 Suggested Strategy: Sell ATM **straddle** (Call + Put) before earnings.")
+            st.markdown(f"Collect approx **${result['straddle_cost']:.2f}** premium on stock near ${result['underlying_price']:.2f}.")
         elif result['ts_slope_0_45'] and (result['avg_volume'] or result['iv30_rv30']):
             st.markdown("### ⚠️ Final Recommendation: **CONSIDER**")
+            st.markdown("⚠️ Volatility setup present, but liquidity or IV edge is weak. Consider small-size iron condor or vertical spread.")
         else:
             st.markdown("### ❌ Final Recommendation: **AVOID**")
+            st.markdown("⚠️ Conditions not favorable for volatility selling strategy.")
 
         # Plot IV Term Structure
         dtes, ivs = result['term_curve']
